@@ -2,8 +2,8 @@
 (*let () = Llvm_codegen.main ()*)
 module E = Expr
 module T = Type
-module TC = Typechecker
-module CC = Closure_conversion
+module HM = HindleyMilner
+module CC = ClosureConversion
 
 let debug = T.debug
 
@@ -12,7 +12,7 @@ let () =
     let expr = Result.get_ok (Parser.parse s) in
     Format.printf "Expression : %s\n" (E.string_of expr);
     try
-      let typed_expr = TC.type_of_expr expr in
+      let typed_expr = HM.hindley_milner expr in
       if debug then Format.printf "Typed expression : %s\n" (E.string_of_typed typed_expr);
       (*if check_type typed_expr = false then Format.printf "TYPE DOESN'T CHECK\n";*)
       Format.printf "Type : %s\n" (T.string_of (E.get_type typed_expr));
@@ -22,11 +22,11 @@ let () =
       if not (CC.is_in_closure_form conv) then
         Format.printf "ERROR: EXPRESSION IS NOT IN CLOSURE FORM ! : \n";
       try
-        let typed_conv = TC.type_of_expr conv in
+        let typed_conv = HM.hindley_milner conv in
         Format.printf "New Type : %s\n" (T.string_of (E.get_type typed_conv));
         Format.printf "\n"
-      with TC.Inference_Error err -> Format.printf "Error : %s\n\n" err
-    with TC.Inference_Error err -> Format.printf "Error : %s\n\n" err
+      with HM.Inference_Error err -> Format.printf "Error : %s\n\n" err
+    with HM.Inference_Error err -> Format.printf "Error : %s\n\n" err
   in
 
   let test_list =
