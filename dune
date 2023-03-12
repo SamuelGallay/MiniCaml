@@ -1,0 +1,7 @@
+(executables
+ (names main)
+ (libraries llvm angstrom))
+
+(env
+  (dev
+    (flags (:standard -warn-error -A))))
