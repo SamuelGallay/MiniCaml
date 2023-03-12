@@ -3,6 +3,8 @@ module VarSet = Set.Make (String)
 module F = Format
 module T = Type
 
+let debug = T.debug
+
 let rec free_vars bound_vars = function
   | E.Var (_, v) -> VarSet.diff (VarSet.singleton v) bound_vars
   | App (_, e0, e1) -> VarSet.union (free_vars bound_vars e0) (free_vars bound_vars e1)
@@ -69,7 +71,7 @@ let rec transform bv exp =
         VarSet.diff (free_vars (VarSet.add x bv) ce1) (l |> List.map fst |> VarSet.of_list)
         |> VarSet.to_seq |> List.of_seq
       in
-      Format.printf "Free vars in %s : %s\n" (E.string_of exp) (String.concat ", " fv);
+      if debug then Format.printf "Free vars in %s : %s\n" (E.string_of exp) (String.concat ", " fv);
       let tup = E.Tup (List.map (fun v -> E.Var (t, v)) fv) in
       (*Bullshit type*)
       let t' = T.arrow (E.get_type tup) t in

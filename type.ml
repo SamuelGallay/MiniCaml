@@ -1,3 +1,5 @@
+let debug = false
+
 type var = string
 
 module F = struct
@@ -38,11 +40,11 @@ let rec occurs (x : var) (t : t) : bool =
   match t with Var y -> x = y | Fct (_, s) -> List.exists (occurs x) s
 
 (* substitute term s for all occurrences of variable x in term t *)
-let rec subst (s : t) (x : var) (t : t) : t =
-  match t with Var y -> if x = y then s else t | Fct (f, u) -> Fct (f, List.map (subst s x) u)
+let rec subst_mono (s : t) (x : var) (t : t) : t =
+  match t with Var y -> if x = y then s else t | Fct (f, u) -> Fct (f, List.map (subst_mono s x) u)
 
 (* apply a substitution right to left *)
-let apply (s : substitution) (t : t) : t = List.fold_right (fun (x, u) -> subst u x) s t
+let apply_mono (s : substitution) (t : t) : t = List.fold_right (fun (x, u) -> subst_mono u x) s t
 
 exception Unification_Error of string
 
@@ -62,7 +64,7 @@ and unify (s : (t * t) list) : substitution =
   | [] -> []
   | (x, y) :: t ->
       let t2 = unify t in
-      let t1 = unify_one (apply t2 x) (apply t2 y) in
+      let t1 = unify_one (apply_mono t2 x) (apply_mono t2 y) in
       t1 @ t2
 (* END : Stolen Unification *)
 

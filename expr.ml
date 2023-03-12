@@ -32,7 +32,7 @@ let rec map_types f = function
   | Let (v, e0, e1) -> Let (v, map_types f e0, map_types f e1)
   | Tup l -> Tup (List.map (map_types f) l)
 
-let apply_subst s e = map_types (Type.apply s) e
+let apply_subst s e = map_types (Type.apply_mono s) e
 
 let rec basic_string_of pt =
   let sprintf = Format.sprintf in

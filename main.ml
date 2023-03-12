@@ -5,42 +5,43 @@ module T = Type
 module TC = Typechecker
 module CC = Closure_conversion
 
+let debug = T.debug
+
 let () =
   let f s =
     let expr = Result.get_ok (Parser.parse s) in
     Format.printf "Expression : %s\n" (E.string_of expr);
     try
       let typed_expr = TC.type_of_expr expr in
-      Format.printf "Typed expression : %s\n" (E.string_of_typed typed_expr);
+      if debug then Format.printf "Typed expression : %s\n" (E.string_of_typed typed_expr);
       (*if check_type typed_expr = false then Format.printf "TYPE DOESN'T CHECK\n";*)
       Format.printf "Type : %s\n" (T.string_of (E.get_type typed_expr));
-      Format.printf "Closure form : %b\n" (CC.is_in_closure_form typed_expr)
-      (*;
-        let conv = CC.converted typed_expr in
-        Format.printf "New Expression : %s\n" (E.string_of conv);
-        if not (CC.is_in_closure_form conv) then
-          Format.printf "ERROR: EXPRESSION IS NOT IN CLOSURE FORM ! : \n";
-        try
-          let typed_conv = TC.type_of_expr conv in
-          Format.printf "New Type : %s\n" (T.string_of (E.get_type typed_conv));
-          Format.printf "\n"
-        with TC.Inference_Error err -> Format.printf "Error : %s\n\n" err *)
+      Format.printf "Closure form : %b\n" (CC.is_in_closure_form typed_expr);
+      let conv = CC.converted typed_expr in
+      Format.printf "New Expression : %s\n" (E.string_of conv);
+      if not (CC.is_in_closure_form conv) then
+        Format.printf "ERROR: EXPRESSION IS NOT IN CLOSURE FORM ! : \n";
+      try
+        let typed_conv = TC.type_of_expr conv in
+        Format.printf "New Type : %s\n" (T.string_of (E.get_type typed_conv));
+        Format.printf "\n"
+      with TC.Inference_Error err -> Format.printf "Error : %s\n\n" err
     with TC.Inference_Error err -> Format.printf "Error : %s\n\n" err
   in
 
   let test_list =
     [
-      (* "let f = fun x -> 3 in (f 2)";
-          "let f = fun x -> x in f";
-          "let f = fun x -> x in (f f)";
-          "let f = fun x -> x in let f = 2 in f";
-          "let f = fun x -> fun y -> x in f";
-          "let eval = fun f -> fun x -> (f x) in eval";
-          "let pair = fun x -> fun f -> ((f x) x) in pair";
-          "let id = fun x -> x in ((id fun y -> y) (id 2))";
-          "let x = [fun y -> y , 2, 3] in x";
-          "let f = _p_3_2 in f";
-          "fun x -> fun y -> fun z ->  x"; *)
+      "let f = fun x -> 3 in (f 2)";
+      "let f = fun x -> x in f";
+      "let f = fun x -> x in (f f)";
+      "let f = fun x -> x in let f = 2 in f";
+      "let f = fun x -> fun y -> x in f";
+      "let eval = fun f -> fun x -> (f x) in eval";
+      "let pair = fun x -> fun f -> ((f x) x) in pair";
+      "let id = fun x -> x in ((id fun y -> y) (id 2))";
+      "let x = [fun y -> y , 2, 3] in x";
+      "let f = _p_3_2 in f";
+      "fun x -> fun y -> fun z ->  x";
       (*"let rb_f16 = fun rb_t14 -> fun z -> [(_p_2_1 rb_t14), (_p_2_2 rb_t14), z] in rb_f16";*)
       "fun rb_t14  -> [(_p_1_1 rb_t14), (_p_1_1 rb_t14)]";
       "fun a -> [a, a]"
