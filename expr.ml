@@ -24,6 +24,14 @@ let rec map_vars (s, e) = function
   | Let (v, e0, e1) -> Let (v, map_vars (s, e) e0, map_vars (s, e) e1)
   | Tup l -> Tup (List.map (map_vars (s, e)) l)
 
+let rec list_vars = function
+  | Var (_, v) -> [ v ]
+  | Cst _ -> []
+  | App (_, e0, e1) -> list_vars e0 @ list_vars e1
+  | Abs (_, x, e0) -> x :: list_vars e0
+  | Let (v, e0, e1) -> (v :: list_vars e0) @ list_vars e1
+  | Tup l -> List.concat_map list_vars l
+
 let rec map_types f = function
   | Var (t, v) -> Var (f t, v)
   | Cst c -> Cst c

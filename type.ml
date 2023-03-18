@@ -20,6 +20,7 @@ let rec string_of = function
   | Var v -> v
   | Fct (F.Arrow, [ t1; t2 ]) -> Format.sprintf "(%s -> %s)" (string_of t1) (string_of t2)
   | Fct (F.Int, []) -> "int"
+  | Fct (F.Tuple, []) -> "unit"
   | Fct (F.Tuple, l) -> String.concat " * " (List.map string_of l)
   | Fct (F.Arrow, _) | Fct (F.Int, _) -> failwith "Incorrect type"
 
