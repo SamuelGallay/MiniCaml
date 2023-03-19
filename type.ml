@@ -3,7 +3,7 @@ let debug = false
 type var = string
 
 module F = struct
-  type t = Arrow | Int | Tuple
+  type t = Arrow | Int | Tuple | BigArrow
 end
 
 type t = Fct of F.t * t list | Var of var
@@ -19,10 +19,11 @@ let rec equal t1 t2 =
 let rec string_of = function
   | Var v -> v
   | Fct (F.Arrow, [ t1; t2 ]) -> Format.sprintf "(%s -> %s)" (string_of t1) (string_of t2)
+  | Fct (F.BigArrow, [ t1; t2 ]) -> Format.sprintf "(%s => %s)" (string_of t1) (string_of t2)
   | Fct (F.Int, []) -> "int"
   | Fct (F.Tuple, []) -> "unit"
   | Fct (F.Tuple, l) -> String.concat " * " (List.map string_of l)
-  | Fct (F.Arrow, _) | Fct (F.Int, _) -> failwith "Incorrect type"
+  | Fct (F.Arrow, _) | Fct (F.BigArrow, _) | Fct (F.Int, _) -> failwith "Incorrect type"
 
 let arrow a b = Fct (F.Arrow, [ a; b ])
 let tuple l = Fct (F.Tuple, l)

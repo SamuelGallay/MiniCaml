@@ -11,7 +11,7 @@ type t = { kt : (T.t * VarSet.t) VarMap.t; nt : unit -> T.t }
 let empty =
   let count = ref 0 in
   {
-    kt = VarMap.empty;
+    kt = VarMap.add "print_int" (T.arrow T.tint (T.tuple []), VarSet.empty) VarMap.empty;
     nt =
       (fun () ->
         count := !count + 1;
